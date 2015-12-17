@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         final String clientId = "Fajrero";
 
 
-        MqttAndroidClient client;
+        final MqttAndroidClient client;
         client = createClient(this, brokerUri, clientId);
 
         // create a client handle
@@ -77,6 +77,17 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
                     Log.d(TAG, "onSuccess() called with: " + "asyncActionToken = [" + asyncActionToken + "]");
+
+                    MqttMessage message = new MqttMessage("Hello, I am Android Mqtt Client.".getBytes());
+                    message.setQos(2);
+                    message.setRetained(false);
+                    try {
+                        client.publish("hallo", message);
+                    } catch (MqttException e) {
+                        Log.e(this.getClass().getCanonicalName(),
+                                "MqttException Occured", e);
+                    }
+                    Log.i(TAG, "Message published");
                 }
 
                 @Override
