@@ -2,33 +2,29 @@ package be.tim.fajrero;
 
 import android.content.Context;
 import android.net.wifi.WifiConfiguration;
-import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
+import android.widget.TextView;
 
+import com.whitebyte.wifihotspotutils.ClientScanResult;
+import com.whitebyte.wifihotspotutils.FinishScanListener;
 import com.whitebyte.wifihotspotutils.WifiApManager;
 
 import org.eclipse.moquette.server.Server;
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.eclipse.paho.client.mqttv3.MqttPersistenceException;
-import org.eclipse.paho.client.mqttv3.internal.ConnectActionListener;
-import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.util.ArrayList;
 
+import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
@@ -37,6 +33,9 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     private MqttAndroidClient client;
     private WifiApManager wifiApManager;
+    @Bind(R.id.debug) TextView debug;
+    private Server server;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,8 +43,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
+
         // Initialize wifi access point mananger
         wifiApManager = new WifiApManager(this);
+
+        displayAccessPointInfo();
+
 
         // Start mqtt server
 //        startMqttServer();
@@ -53,6 +56,59 @@ public class MainActivity extends AppCompatActivity {
         // Start mqtt client
 //        startMqttClient();
 
+    }
+
+
+    @OnClick(R.id.publish)
+    public void publishClicked(View view) {
+        if (client == null) {
+            return;
+        }
+        publishMessage();
+    }
+
+    @OnClick(R.id.start_access_point)
+    public void startAccessPointClicked(View view) {
+        startAccessPoint();
+    }
+
+    @OnClick(R.id.stop_access_point)
+    public void stopAccessPointClicked(View view) {
+        stopAccessPoint();
+    }
+
+    @OnClick(R.id.start_server)
+    public void startServerClicked(View view) {
+        startMqttServer();
+    }
+
+    @OnClick(R.id.stop_server)
+    public void stopServerClicked(View view) {
+        stopMqttServer();
+    }
+
+    @OnClick(R.id.start_client)
+    public void startCLientClicked(View view) {
+        startMqttClient();
+    }
+
+    @OnClick(R.id.stop_client)
+    public void stopClientClicked(View view) {
+        disconnectMqttClient();
+    }
+
+    @OnClick(R.id.refresh_debug)
+    public void refreshDebugClicked(View view) {
+        displayAccessPointInfo();
+    }
+
+    private void startAccessPoint() {
+        WifiConfiguration config = getWifiConfiguration();
+        wifiApManager.setWifiApEnabled(config, true);
+    }
+
+    private void stopAccessPoint() {
+        wifiApManager.setWifiApEnabled(null, false);
     }
 
     private void startMqttClient() {
@@ -90,31 +146,30 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void startMqttServer() {
+    private void disconnectMqttClient() {
         try {
-            new Server().startServer();
+            client.disconnect();
+        }
+        catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void startMqttServer() {
+        server = new Server();
+
+        try {
+            server.startServer();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-
-    @OnClick(R.id.publish)
-    public void publish(View view) {
-        if (client == null) {
+    private void stopMqttServer() {
+        if (server == null) {
             return;
         }
-        publishMessage();
-    }
-
-    @OnClick(R.id.open_access_point)
-    public void openAccessPoint(View view) {
-        WifiConfiguration config = getWifiConfiguration();
-        wifiApManager.setWifiApEnabled(config, true);
-    }
-    @OnClick(R.id.close_access_point)
-    public void closeAccessPoint(View view) {
-        wifiApManager.setWifiApEnabled(null, false);
+        server.stopServer();
     }
 
     @NonNull
@@ -131,6 +186,25 @@ public class MainActivity extends AppCompatActivity {
         config.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
         config.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
         return config;
+    }
+
+    private void displayAccessPointInfo() {
+        wifiApManager.getClientList(false, new FinishScanListener() {
+
+            @Override
+            public void onFinishScan(final ArrayList<ClientScanResult> clients) {
+
+                debug.setText("WifiApState: " + wifiApManager.getWifiApState() + "\n\n");
+                debug.append("Clients: \n");
+                for (ClientScanResult clientScanResult : clients) {
+                    debug.append("-------------------\n");
+                    debug.append("IpAddr: " + clientScanResult.getIpAddr() + "\n");
+                    debug.append("Device: " + clientScanResult.getDevice() + "\n");
+                    debug.append("HWAddr: " + clientScanResult.getHWAddr() + "\n");
+                    debug.append("isReachable: " + clientScanResult.isReachable() + "\n");
+                }
+            }
+        });
     }
 
     /**

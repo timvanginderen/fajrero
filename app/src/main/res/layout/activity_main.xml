@@ -7,6 +7,73 @@
     android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity"
     android:orientation="vertical">
 
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/start_access_point"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/start_access_point"
+            android:layout_weight="1"/>
+
+        <Button
+            android:id="@+id/stop_access_point"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/stop_access_point"
+            android:layout_weight="1"/>
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+
+        <Button
+            android:id="@+id/start_server"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/start_server"/>
+
+        <Button
+            android:id="@+id/stop_server"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/stop_server"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/start_client"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/start_client"/>
+
+        <Button
+            android:id="@+id/stop_client"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/stop_client"/>
+
+    </LinearLayout>
+
+
     <Button
         android:id="@+id/publish"
         android:layout_width="match_parent"
@@ -14,16 +81,10 @@
         android:text="@string/publish"/>
 
     <Button
-        android:id="@+id/open_access_point"
+        android:id="@+id/refresh_debug"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/open_access_point"/>
-
-    <Button
-        android:id="@+id/close_access_point"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/close_access_point"/>
+        android:text="@string/refresh_debug"/>
 
     <TextView
         android:id="@+id/debug"

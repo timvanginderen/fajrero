@@ -93,6 +93,11 @@
     <string name="keepaliveHint">200</string>
     <string name="sslKeyLocaltion">file://</string>
     <string name="select">select</string>
-    <string name="open_access_point">Open AP</string>
-    <string name="close_access_point">Close AP</string>
+    <string name="start_access_point">Start AP</string>
+    <string name="stop_access_point">Stop AP</string>
+    <string name="refresh_debug">Refresh Info</string>
+    <string name="start_server">Start Server</string>
+    <string name="stop_server">Stop Server</string>
+    <string name="start_client">Start Client</string>
+    <string name="stop_client">Stop Client</string>
 </resources>
