@@ -2,6 +2,7 @@ package be.tim.fajrero;
 
 import android.content.Context;
 import android.net.wifi.WifiConfiguration;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -24,6 +25,8 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -32,10 +35,13 @@ import butterknife.OnClick;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    public static final int PUBLISH_INTERVAL = 5000;
     private MqttAndroidClient client;
     private WifiApManager wifiApManager;
     @Bind(R.id.debug) TextView debug;
     private Server server;
+    private ScheduledThreadPoolExecutor threadPoolExecutor;
+    private Handler handler;
 
 
     @Override
@@ -46,22 +52,17 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize wifi access point mananger
         wifiApManager = new WifiApManager(this);
+        handler = new Handler();
 
         displayAccessPointInfo();
-
-
-        // Start mqtt server
-//        startMqttServer();
-
-        // Start mqtt client
-//        startMqttClient();
-
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         disconnectMqttClient();
+
+        stopPublishing();
     }
 
     @Override
@@ -111,6 +112,40 @@ public class MainActivity extends AppCompatActivity {
     public void refreshDebugClicked(View view) {
         displayAccessPointInfo();
     }
+
+    @OnClick(R.id.all_in_one)
+    public void allInOneClicked(View view) {
+        executeAll();
+    }
+
+    private void executeAll() {
+        startAccessPoint();
+        startMqttServer();
+        startMqttClient();
+
+        // Publish message every 5 seconds
+        startPublishing();
+
+    }
+
+    /**
+     * Must be called from UI thread
+     */
+    private void startPublishing() {
+        publisher.run();
+    }
+
+    private void stopPublishing() {
+        handler.removeCallbacks(publisher);
+    }
+
+    Runnable publisher = new Runnable() {
+        @Override
+        public void run() {
+            publishMessage();
+            handler.postDelayed(publisher, PUBLISH_INTERVAL);
+        }
+    };
 
     private void startAccessPoint() {
         WifiConfiguration config = getWifiConfiguration();
@@ -235,6 +270,7 @@ public class MainActivity extends AppCompatActivity {
             }
         } catch (NullPointerException e) {
             Log.e(TAG, "NullPointerException thrown in client.isConnected()", e);
+//            displayToast("Not connected to server.");
         }
 
         MqttMessage message = new MqttMessage("Hello, I am Android Mqtt Client.".getBytes());
@@ -242,11 +278,12 @@ public class MainActivity extends AppCompatActivity {
         message.setRetained(false);
         try {
             client.publish("hallo", message);
+            Log.i(TAG, "Message published");
         } catch (MqttException e) {
-            Log.e(this.getClass().getCanonicalName(),
-                    "MqttException Occured", e);
+            Log.e(this.getClass().getCanonicalName(),  "MqttException Occured", e);
+        } catch (NullPointerException e) {
+            Log.e(this.getClass().getCanonicalName(),  "NullPointerException Occured", e);
         }
-        Log.i(TAG, "Message published");
     }
 
     private void displayToast(String message) {
