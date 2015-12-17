@@ -27,34 +27,28 @@ import java.io.IOException;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
-//    private MqttAndroidClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        try {
-//            new Server().startServer();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            new Server().startServer();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-
-//        final String brokerUri = "tcp://0.0.0.0:1883";
-        final String brokerUri = "tcp://192.168.1.121:1883";
+        final String brokerUri = "tcp://0.0.0.0:1883";
         final String clientId = "Fajrero";
-
 
         final MqttAndroidClient client;
         client = createClient(this, brokerUri, clientId);
 
-        // create a client handle
         final String clientHandle = brokerUri + clientId;
         final boolean ssl = false;
         final int port = 1883;
-//        final String host = "0.0.0.0";
-        final String host = "192.168.1.121";
+        final String host = "0.0.0.0";
 
         Connection connection = new Connection(clientHandle, clientId, host, port, this, client, ssl);
 
@@ -64,7 +58,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "propertyChange() called with: " + "event = [" + event + "]");
             }
         });
-        // connect client
 
         String[] actionArgs = new String[1];
         actionArgs[0] = clientId;
@@ -78,16 +71,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onSuccess(IMqttToken asyncActionToken) {
                     Log.d(TAG, "onSuccess() called with: " + "asyncActionToken = [" + asyncActionToken + "]");
 
-                    MqttMessage message = new MqttMessage("Hello, I am Android Mqtt Client.".getBytes());
-                    message.setQos(2);
-                    message.setRetained(false);
-                    try {
-                        client.publish("hallo", message);
-                    } catch (MqttException e) {
-                        Log.e(this.getClass().getCanonicalName(),
-                                "MqttException Occured", e);
-                    }
-                    Log.i(TAG, "Message published");
+                    publishMessage(client);
                 }
 
                 @Override
@@ -101,130 +85,20 @@ public class MainActivity extends AppCompatActivity {
                     "MqttException Occured", e);
         }
 
-
-
-
-
-
-//
-//        final MqttAndroidClient mqttAndroidClient = new MqttAndroidClient(getApplicationContext(),
-//                brokerUri, clientId);
-//
-//        try {
-//            mqttAndroidClient.connect();
-//            mqttAndroidClient.setCallback(new MqttCallback() {
-//                @Override
-//                public void connectionLost(Throwable throwable) {
-//                    Log.d(TAG, "connectionLost() called with: "
-//                            + "throwable = [" + throwable + "]");
-//                }
-//
-//                @Override
-//                public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
-//                    Log.d(TAG, "messageArrived() called with: "
-//                            + "s = [" + s + "], mqttMessage = [" + mqttMessage + "]");
-//                }
-//
-//                @Override
-//                public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
-//                    Log.d(TAG, "deliveryComplete() called with: "
-//                            + "iMqttDeliveryToken = [" + iMqttDeliveryToken + "]");
-//                }
-//            });
-//
-//            final String topic = "joep";
-//            final int qos = 2;
-//
-//            mqttAndroidClient.subscribe(topic, qos, getApplicationContext(), new IMqttActionListener() {
-//                @Override
-//                public void onSuccess(IMqttToken iMqttToken) {
-//                    Log.d(TAG, "onSuccess() called with: "
-//                            + "iMqttToken = [" + iMqttToken + "]");
-//                }
-//
-//                @Override
-//                public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
-//                    Log.d(TAG, "onFailure() called with: "
-//                            + "iMqttToken = [" + iMqttToken + "], throwable = [" + throwable + "]");
-//                }
-//            });
-//
-////            new Handler().postDelayed(new Runnable() {
-////                @Override
-////                public void run() {
-////                    String message = "joep";
-////                    try {
-////                        mqttAndroidClient.publish("test", new MqttMessage(message.getBytes()));
-////                    } catch (MqttException e) {
-////                        e.printStackTrace();
-////                    }
-////                }
-////            }, 5000);
-//
-//
-//        } catch (MqttException e) {
-//            e.printStackTrace();
-//        }
-
-
-
-
-//        Log.i(TAG, "MQTT Start");
-//        MemoryPersistence memPer = new MemoryPersistence();
-//        client = new MqttAndroidClient(getApplicationContext(), "tcp://192.168.1.121:1883", clientId, memPer);
-//
-//
-//        new Handler().postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//                    try {
-//                        client.connect(getApplicationContext(), new IMqttActionListener() {
-//
-//                            @Override
-//                            public void onSuccess(IMqttToken mqttToken) {
-//                                Log.i(TAG, "Client connected");
-//                                Log.i(TAG, "Topics=" + mqttToken.getTopics());
-//
-//                                MqttMessage message = new MqttMessage("Hello, I am Android Mqtt Client.".getBytes());
-//                                message.setQos(2);
-//                                message.setRetained(false);
-//
-//                                try {
-//                                    client.publish("messages", message);
-//
-//                                    Log.i(TAG, "Message published");
-//
-//                                    client.disconnect();
-//                                    Log.i(TAG, "client disconnected");
-//                                } catch (MqttPersistenceException e) {
-//                                    // TODO Auto-generated catch block
-//                                    e.printStackTrace();
-//                                } catch (MqttException e) {
-//                                    // TODO Auto-generated catch block
-//                                    e.printStackTrace();
-//                                }
-//
-//
-//                            }
-//
-//                            @Override
-//                            public void onFailure(IMqttToken arg0, Throwable arg1) {
-//                                // TODO Auto-generated method stub
-//                                Log.i(TAG, "Client connection failed: " + arg1.getMessage());
-//
-//                            }
-//                        });
-//                    } catch (MqttException e) {
-//                        Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-//                    }
-//
-//                }
-//            }, 5000);
-
-
     }
 
-
+    private void publishMessage(MqttAndroidClient client) {
+        MqttMessage message = new MqttMessage("Hello, I am Android Mqtt Client.".getBytes());
+        message.setQos(2);
+        message.setRetained(false);
+        try {
+            client.publish("hallo", message);
+        } catch (MqttException e) {
+            Log.e(this.getClass().getCanonicalName(),
+                    "MqttException Occured", e);
+        }
+        Log.i(TAG, "Message published");
+    }
 
 
     /**
