@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import org.eclipse.moquette.server.Server;
@@ -24,25 +25,31 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.IOException;
 
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+    private MqttAndroidClient client;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
+        // Start mqtt server
         try {
             new Server().startServer();
         } catch (IOException e) {
             e.printStackTrace();
         }
 
+        //create mqtt client
         final String brokerUri = "tcp://0.0.0.0:1883";
         final String clientId = "Fajrero";
 
-        final MqttAndroidClient client;
         client = createClient(this, brokerUri, clientId);
 
         final String clientHandle = brokerUri + clientId;
@@ -71,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onSuccess(IMqttToken asyncActionToken) {
                     Log.d(TAG, "onSuccess() called with: " + "asyncActionToken = [" + asyncActionToken + "]");
 
-                    publishMessage(client);
+//                    publishMessage(client);
                 }
 
                 @Override
@@ -85,6 +92,13 @@ public class MainActivity extends AppCompatActivity {
                     "MqttException Occured", e);
         }
 
+    }
+    @OnClick(R.id.publish)
+    public void publish(View view) {
+        if (client == null) {
+            return;
+        }
+        publishMessage(client);
     }
 
     private void publishMessage(MqttAndroidClient client) {
