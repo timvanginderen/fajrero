@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.whitebyte.wifihotspotutils.ClientScanResult;
 import com.whitebyte.wifihotspotutils.FinishScanListener;
@@ -43,7 +44,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-
         // Initialize wifi access point mananger
         wifiApManager = new WifiApManager(this);
 
@@ -58,12 +58,22 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        disconnectMqttClient();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        //try to connect mqqt client all the time ATM
+        startMqttClient();
+    }
 
     @OnClick(R.id.publish)
     public void publishClicked(View view) {
-        if (client == null) {
-            return;
-        }
         publishMessage();
     }
 
@@ -147,6 +157,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void disconnectMqttClient() {
+        if (client == null) {
+            return;
+        }
+
         try {
             client.disconnect();
         }
@@ -211,6 +225,18 @@ public class MainActivity extends AppCompatActivity {
      * Publish a message on the mqtt broker
      */
     private void publishMessage() {
+        if (client == null) {
+            displayToast("Not connected to server.");
+        }
+
+        try {
+            if (!client.isConnected()) {
+                displayToast("Not connected to server.");
+            }
+        } catch (NullPointerException e) {
+            Log.e(TAG, "NullPointerException thrown in client.isConnected()", e);
+        }
+
         MqttMessage message = new MqttMessage("Hello, I am Android Mqtt Client.".getBytes());
         message.setQos(2);
         message.setRetained(false);
@@ -221,6 +247,10 @@ public class MainActivity extends AppCompatActivity {
                     "MqttException Occured", e);
         }
         Log.i(TAG, "Message published");
+    }
+
+    private void displayToast(String message) {
+        Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
     }
 
 

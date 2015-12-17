@@ -86,6 +86,13 @@
         android:layout_height="wrap_content"
         android:text="@string/refresh_debug"/>
 
+
+    <Button
+        android:id="@+id/all_in_one"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/all_in_one"/>
+
     <TextView
         android:id="@+id/debug"
         android:layout_width="wrap_content"
