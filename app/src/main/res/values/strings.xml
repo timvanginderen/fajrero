@@ -101,4 +101,5 @@
     <string name="start_client">Start Client</string>
     <string name="stop_client">Stop Client</string>
     <string name="all_in_one">ALL IN ONE</string>
+    <string name="stop_all_in_one">STOP</string>
 </resources>

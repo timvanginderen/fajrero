@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private Server server;
     private ScheduledThreadPoolExecutor threadPoolExecutor;
     private Handler handler;
+    private boolean isPublishTaskRunning = false;
 
 
     @Override
@@ -60,17 +61,18 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        disconnectMqttClient();
+//        disconnectMqttClient();
 
-        stopPublishing();
+//        stopPublishing();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        //try to connect mqqt client all the time ATM
-        startMqttClient();
+        //try to connect mqqt client, execute publisher all the time ATM !
+//        startMqttClient();
+//        startPublishing();
     }
 
     @OnClick(R.id.publish)
@@ -118,8 +120,16 @@ public class MainActivity extends AppCompatActivity {
         executeAll();
     }
 
+    @OnClick(R.id.stop_all_in_one)
+    public void stopAllInOneClicked(View view) {
+        stopAll();
+    }
+
     private void executeAll() {
+        displayAccessPointInfo();
         startAccessPoint();
+        displayAccessPointInfo();
+
         startMqttServer();
         startMqttClient();
 
@@ -127,6 +137,14 @@ public class MainActivity extends AppCompatActivity {
         startPublishing();
 
     }
+
+    private void stopAll() {
+        stopPublishing();
+        disconnectMqttClient();
+        stopMqttServer();
+        stopAccessPoint();
+    }
+
 
     /**
      * Must be called from UI thread
@@ -136,20 +154,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void stopPublishing() {
-        handler.removeCallbacks(publisher);
+        handler.removeCallbacksAndMessages(null);
     }
 
     Runnable publisher = new Runnable() {
         @Override
         public void run() {
+            Log.d(TAG, "Publishing message, run() called");
             publishMessage();
             handler.postDelayed(publisher, PUBLISH_INTERVAL);
         }
     };
 
     private void startAccessPoint() {
+        Log.d(TAG, "startAccessPoint() called");
         WifiConfiguration config = getWifiConfiguration();
         wifiApManager.setWifiApEnabled(config, true);
+        Log.d(TAG, "startAccessPoint() finished");
     }
 
     private void stopAccessPoint() {
@@ -162,15 +183,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createMqttClient() {
-        final String brokerUri = "tcp://0.0.0.0:1883";
-        final String clientId = "Fajrero";
+        if (client == null) {
+            final String brokerUri = "tcp://0.0.0.0:1883";
+            final String clientId = "Fajrero";
 
-        client = createClient(this, brokerUri, clientId);
+            client = createClient(this, brokerUri, clientId);
+        }
     }
 
     private void connectMqttClient() {
         MqttConnectOptions conOpt = new MqttConnectOptions();
-        conOpt.setCleanSession(true);
 
         try {
             client.connect(conOpt, null, new IMqttActionListener() {
@@ -184,10 +206,10 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "onFailure() called with: " + "asyncActionToken = [" + asyncActionToken + "], exception = [" + exception + "]");
                 }
             });
-        }
-        catch (MqttException e) {
-            Log.e(this.getClass().getCanonicalName(),
-                    "MqttException Occured", e);
+        } catch (MqttException e) {
+            Log.e(TAG, "MqttException Occured", e);
+        } catch (Exception e) {
+            Log.e(TAG, "Exception Occured", e);
         }
     }
 
@@ -197,10 +219,12 @@ public class MainActivity extends AppCompatActivity {
         }
 
         try {
+            client.unregisterResources();
             client.disconnect();
-        }
-        catch (MqttException e) {
-            e.printStackTrace();
+        } catch (MqttException e) {
+            Log.e(TAG, "MqttException Occured", e);
+        } catch (Exception e) {
+            Log.e(TAG, "Exception Occured", e);
         }
     }
 
@@ -261,16 +285,24 @@ public class MainActivity extends AppCompatActivity {
      */
     private void publishMessage() {
         if (client == null) {
-            displayToast("Not connected to server.");
+            displayToast("Not connected to server. client = null");
+            stopPublishing();
+            return;
         }
 
         try {
             if (!client.isConnected()) {
-                displayToast("Not connected to server.");
+                stopPublishing();
+                displayToast("Not connected to server. !client.isConnected()");
+                return;
             }
         } catch (NullPointerException e) {
             Log.e(TAG, "NullPointerException thrown in client.isConnected()", e);
-//            displayToast("Not connected to server.");
+            return;
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, "IllegalArgumentException thrown in client.isConnected()", e);
+        } catch (Exception e) {
+            Log.e(TAG, "IllegalArgumentException thrown in client.isConnected()", e);
         }
 
         MqttMessage message = new MqttMessage("Hello, I am Android Mqtt Client.".getBytes());
@@ -280,9 +312,9 @@ public class MainActivity extends AppCompatActivity {
             client.publish("hallo", message);
             Log.i(TAG, "Message published");
         } catch (MqttException e) {
-            Log.e(this.getClass().getCanonicalName(),  "MqttException Occured", e);
+            Log.e(TAG,  "MqttException Occured", e);
         } catch (NullPointerException e) {
-            Log.e(this.getClass().getCanonicalName(),  "NullPointerException Occured", e);
+            Log.e(TAG, "NullPointerException Occured", e);
         }
     }
 
