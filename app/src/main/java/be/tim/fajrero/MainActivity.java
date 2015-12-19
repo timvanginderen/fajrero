@@ -148,7 +148,12 @@ public class MainActivity extends AppCompatActivity {
      * Must be called from UI thread
      */
     private void startPublishing() {
-        publisher.run();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                publisher.run();
+            }
+        }, 5000);
     }
 
     private void stopPublishing() {
@@ -285,11 +290,13 @@ public class MainActivity extends AppCompatActivity {
                 builder.append(clientsConnected + "  |  " + messagesPublished);
                 builder.append("\n");
 
-                final String serverStatus = "MQTT server status: " + (MainActivity.this.server == null ? "stopped" : "started");
+                final String serverStatus = "MQTT server status: "
+                        + (MainActivity.this.server == null ? "stopped" : "started");
                 builder.append(serverStatus);
                 builder.append("\n");
 
-                final String clientStatus = "MQTT client status: " + (isClientConnected() ? "connected" : "disconnected");
+                final String clientStatus = "MQTT client status: "
+                        + (isClientConnected() ? "connected" : "disconnected");
                 builder.append(clientStatus);
                 builder.append("\n");
                 builder.append("\n");
