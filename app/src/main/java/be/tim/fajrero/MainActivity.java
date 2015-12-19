@@ -147,28 +147,18 @@ public class MainActivity extends AppCompatActivity {
         savePasswordState();
     }
 
-    @OnFocusChange(R.id.ssid)
-    public void onFocusChangeSsid(View v, boolean hasFocus) {
+    @OnFocusChange({R.id.ssid, R.id.password, R.id.broker, R.id.clientName})
+    public void onFocusChange(View v, boolean hasFocus) {
         if (!hasFocus) {
-            saveSsid();
-        }
-    }
-    @OnFocusChange(R.id.password)
-    public void onFocusChangePassword(View v, boolean hasFocus) {
-        if (!hasFocus) {
-            savePassword();
-        }
-    }
-    @OnFocusChange(R.id.broker)
-    public void onFocusChangeBroker(View v, boolean hasFocus) {
-        if (!hasFocus) {
-            saveBroker();
-        }
-    }
-    @OnFocusChange(R.id.clientName)
-    public void onFocusChangeClientName(View v, boolean hasFocus) {
-        if (!hasFocus) {
-            saveClientName();
+            if (getString(R.string.tag_ssid).equals(v.getTag().toString())) {
+                saveSsid();
+            } else if (getString(R.string.tag_password).equals(v.getTag().toString())) {
+                savePassword();
+            } else if (getString(R.string.tag_broker).equals(v.getTag().toString())) {
+                saveBroker();
+            } else if (getString(R.string.tag_clientName).equals(v.getTag().toString())) {
+                saveClientName();
+            }
         }
     }
 

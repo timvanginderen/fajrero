@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tag_ssid">ssid</string>
+    <string name="tag_password">password</string>
+    <string name="tag_broker">broker</string>
+    <string name="tag_clientName">clientName</string>
+</resources>

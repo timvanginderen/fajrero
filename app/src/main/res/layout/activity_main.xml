@@ -29,7 +29,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="text"
-                android:hint="SSID"/>
+                android:hint="SSID"
+                android:tag="@string/tag_ssid"/>
 
         </android.support.design.widget.TextInputLayout>
 
@@ -49,7 +50,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
-                    android:hint="PASSWORD"/>
+                    android:hint="PASSWORD"
+                    android:tag="@string/tag_password"/>
 
             </android.support.design.widget.TextInputLayout>
 
@@ -73,7 +75,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="phone"
-                android:hint="BROKER IP"/>
+                android:hint="BROKER IP"
+                android:tag="@string/tag_broker"/>
 
         </android.support.design.widget.TextInputLayout>
 
@@ -87,7 +90,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textCapWords"
-                android:hint="CLIENT NAME"/>
+                android:hint="CLIENT NAME"
+                android:tag="@string/tag_clientName"/>
 
         </android.support.design.widget.TextInputLayout>
 
