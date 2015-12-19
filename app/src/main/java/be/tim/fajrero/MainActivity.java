@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -50,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
     @Bind(R.id.broker) EditText broker;
     @Bind(R.id.clientName) EditText clientName;
     @Bind(R.id.showPassword) CheckBox showPassword;
+    @Bind(R.id.all_in_one) Button allInOne;
+    @Bind(R.id.stop_all_in_one) Button stopAllInOne;
 
     private WifiApManager wifiApManager;
     private MqttAndroidClient client;
@@ -57,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private Handler handler;
     private int publishCount = 0;
     private Prefser prefser;
+    private boolean isRunning;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +78,12 @@ public class MainActivity extends AppCompatActivity {
         prefser = new Prefser(this);
 
         restoreSetupInfo();
+        refreshViews();
+    }
+
+    private void refreshViews() {
         refreshDebugInfo();
+        refreshActionButtons();
     }
 
     @Override
@@ -191,6 +200,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void executeAll() {
+        isRunning = true;
+
         startAccessPoint();
         startMqttServer();
         startMqttClient();
@@ -208,6 +219,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void stopAll() {
+        isRunning = false;
+        
         stopPublishing();
         disconnectMqttClient();
 
@@ -217,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
                 stopMqttServer();
                 stopAccessPoint();
 
-                refreshDebugInfo();
+                refreshViews();
             }
         }, 1500);
     }
@@ -246,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    refreshDebugInfo();
+                    refreshViews();
                 }
             });
             handler.postDelayed(publisher, PUBLISH_INTERVAL);
@@ -346,6 +359,11 @@ public class MainActivity extends AppCompatActivity {
         config.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
         config.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
         return config;
+    }
+
+    private void refreshActionButtons() {
+        allInOne.setVisibility(isRunning ? View.GONE : View.VISIBLE);
+        stopAllInOne.setVisibility(isRunning ? View.VISIBLE : View.GONE);
     }
 
     private void refreshDebugInfo() {
