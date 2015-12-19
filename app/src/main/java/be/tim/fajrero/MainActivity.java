@@ -42,8 +42,6 @@ public class MainActivity extends AppCompatActivity {
     private Handler handler;
     private int publishCount = 0;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -137,10 +135,17 @@ public class MainActivity extends AppCompatActivity {
     private void stopAll() {
         stopPublishing();
         disconnectMqttClient();
-        stopMqttServer(); //TODO fix issue in lib when accessing DB on shutdown
-        stopAccessPoint();
 
-        refreshDebugInfo();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                stopMqttServer();
+                stopAccessPoint();
+
+                refreshDebugInfo();
+            }
+        }, 1500);
+
     }
 
 
