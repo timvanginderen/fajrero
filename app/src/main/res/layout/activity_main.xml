@@ -42,7 +42,7 @@
                 android:id="@+id/password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text"
+                android:inputType="textPassword"
                 android:hint="PASSWORD"/>
 
         </android.support.design.widget.TextInputLayout>
@@ -56,7 +56,7 @@
                 android:id="@+id/broker"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text"
+                android:inputType="phone"
                 android:hint="BROKER IP"/>
 
         </android.support.design.widget.TextInputLayout>
@@ -70,7 +70,7 @@
                 android:id="@+id/clientName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="text"
+                android:inputType="textCapWords"
                 android:hint="CLIENT NAME"/>
 
         </android.support.design.widget.TextInputLayout>
