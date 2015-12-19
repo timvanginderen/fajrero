@@ -8,9 +8,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.pwittchen.prefser.library.Prefser;
 import com.whitebyte.wifihotspotutils.ClientScanResult;
 import com.whitebyte.wifihotspotutils.FinishScanListener;
 import com.whitebyte.wifihotspotutils.WifiApManager;
@@ -34,13 +36,21 @@ import butterknife.OnClick;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
+
     public static final int PUBLISH_INTERVAL = 5000;
-    private MqttAndroidClient client;
-    private WifiApManager wifiApManager;
+
     @Bind(R.id.debug) TextView debug;
+    @Bind(R.id.ssid) EditText ssid;
+    @Bind(R.id.password) EditText password;
+    @Bind(R.id.broker) EditText broker;
+    @Bind(R.id.clientName) EditText clientName;
+
+    private WifiApManager wifiApManager;
+    private MqttAndroidClient client;
     private Server server;
     private Handler handler;
     private int publishCount = 0;
+    private Prefser prefser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,8 +60,14 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize wifi access point mananger
         wifiApManager = new WifiApManager(this);
+
+        // Initialize handler for Main
         handler = new Handler();
 
+        // Initialize SharedPreferences helper used to store EditText values
+        prefser = new Prefser(this);
+
+        restoreSetupInfo();
         refreshDebugInfo();
     }
 
@@ -107,12 +123,27 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.all_in_one)
     public void allInOneClicked(View view) {
+        saveSetupInfo();
         executeAll();
     }
 
     @OnClick(R.id.stop_all_in_one)
     public void stopAllInOneClicked(View view) {
         stopAll();
+    }
+
+    private void saveSetupInfo() {
+        prefser.put(Prefs.KEY_SSID, ssid.getText().toString().trim());
+        prefser.put(Prefs.KEY_PASSWORD, password.getText().toString());
+        prefser.put(Prefs.KEY_BROKER, broker.getText().toString().trim());
+        prefser.put(Prefs.KEY_CLIENT_NAME, clientName.getText().toString().trim());
+    }
+
+    private void restoreSetupInfo() {
+        ssid.setText(prefser.get(Prefs.KEY_SSID, String.class, ""));
+        password.setText(prefser.get(Prefs.KEY_PASSWORD, String.class, ""));
+        broker.setText(prefser.get(Prefs.KEY_BROKER, String.class, ""));
+        clientName.setText(prefser.get(Prefs.KEY_CLIENT_NAME, String.class, ""));
     }
 
     private void executeAll() {
@@ -145,9 +176,7 @@ public class MainActivity extends AppCompatActivity {
                 refreshDebugInfo();
             }
         }, 1500);
-
     }
-
 
     /**
      * Must be called from UI thread
@@ -262,9 +291,9 @@ public class MainActivity extends AppCompatActivity {
     @NonNull
     private WifiConfiguration getWifiConfiguration() {
         WifiConfiguration config = new WifiConfiguration();
-        config.SSID = "Waldo's mama";
-        config.preSharedKey  = "p@ssw0rd";
-//        config.hiddenSSID = false;
+        config.SSID = "CSsetupwifi";
+        config.preSharedKey  = "cheapspark";
+        config.hiddenSSID = true;
         config.status = WifiConfiguration.Status.ENABLED;
         config.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
         config.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
@@ -374,7 +403,6 @@ public class MainActivity extends AppCompatActivity {
     private void displayToast(String message) {
         Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
     }
-
 
     /**
      * Create a fully initialised <code>MqttAndroidClient</code> for the parameters given
