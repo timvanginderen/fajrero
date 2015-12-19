@@ -192,12 +192,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createMqttClient() {
-        if (client == null) {
-            final String brokerUri = "tcp://0.0.0.0:1883";
-            final String clientId = "Fajrero";
+        final String brokerUri = "tcp://0.0.0.0:1883";
+        final String clientId = "Fajrero";
 
-            client = createClient(this, brokerUri, clientId);
-        }
+        client = createClient(this, brokerUri, clientId);
     }
 
     private void connectMqttClient() {
