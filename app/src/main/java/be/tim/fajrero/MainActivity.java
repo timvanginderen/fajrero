@@ -6,8 +6,11 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,6 +34,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 
 public class MainActivity extends AppCompatActivity {
@@ -130,6 +134,15 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.stop_all_in_one)
     public void stopAllInOneClicked(View view) {
         stopAll();
+    }
+
+    @OnCheckedChanged(R.id.showPassword)
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        if(!isChecked) {
+            password.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        } else {
+            password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        }
     }
 
     private void saveSetupInfo() {
