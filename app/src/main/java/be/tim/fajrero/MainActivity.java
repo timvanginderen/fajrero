@@ -36,6 +36,7 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
+import butterknife.OnFocusChange;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -128,7 +129,6 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.all_in_one)
     public void allInOneClicked(View view) {
-        saveSetupInfo();
         executeAll();
     }
 
@@ -144,14 +144,52 @@ public class MainActivity extends AppCompatActivity {
         } else {
             password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         }
+        savePasswordState();
     }
 
-    private void saveSetupInfo() {
-        prefser.put(Prefs.KEY_SSID, ssid.getText().toString().trim());
-        prefser.put(Prefs.KEY_PASSWORD, password.getText().toString());
+    @OnFocusChange(R.id.ssid)
+    public void onFocusChangeSsid(View v, boolean hasFocus) {
+        if (!hasFocus) {
+            saveSsid();
+        }
+    }
+    @OnFocusChange(R.id.password)
+    public void onFocusChangePassword(View v, boolean hasFocus) {
+        if (!hasFocus) {
+            savePassword();
+        }
+    }
+    @OnFocusChange(R.id.broker)
+    public void onFocusChangeBroker(View v, boolean hasFocus) {
+        if (!hasFocus) {
+            saveBroker();
+        }
+    }
+    @OnFocusChange(R.id.clientName)
+    public void onFocusChangeClientName(View v, boolean hasFocus) {
+        if (!hasFocus) {
+            saveClientName();
+        }
+    }
+
+    private void saveBroker() {
         prefser.put(Prefs.KEY_BROKER, broker.getText().toString().trim());
+    }
+
+    private void saveClientName() {
         prefser.put(Prefs.KEY_CLIENT_NAME, clientName.getText().toString().trim());
+    }
+
+    private void savePasswordState() {
         prefser.put(Prefs.KEY_PASSWORD_HIDDEN, !showPassword.isChecked());
+    }
+
+    private void savePassword() {
+        prefser.put(Prefs.KEY_PASSWORD, password.getText().toString());
+    }
+
+    private void saveSsid() {
+        prefser.put(Prefs.KEY_SSID, ssid.getText().toString().trim());
     }
 
     private void restoreSetupInfo() {
