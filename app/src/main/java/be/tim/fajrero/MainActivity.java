@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     @Bind(R.id.password) EditText password;
     @Bind(R.id.broker) EditText broker;
     @Bind(R.id.clientName) EditText clientName;
+    @Bind(R.id.showPassword) CheckBox showPassword;
 
     private WifiApManager wifiApManager;
     private MqttAndroidClient client;
@@ -138,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
 
     @OnCheckedChanged(R.id.showPassword)
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        if(!isChecked) {
+        if(isChecked) {
             password.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
         } else {
             password.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
@@ -150,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
         prefser.put(Prefs.KEY_PASSWORD, password.getText().toString());
         prefser.put(Prefs.KEY_BROKER, broker.getText().toString().trim());
         prefser.put(Prefs.KEY_CLIENT_NAME, clientName.getText().toString().trim());
+        prefser.put(Prefs.KEY_PASSWORD_HIDDEN, !showPassword.isChecked());
     }
 
     private void restoreSetupInfo() {
@@ -157,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
         password.setText(prefser.get(Prefs.KEY_PASSWORD, String.class, ""));
         broker.setText(prefser.get(Prefs.KEY_BROKER, String.class, ""));
         clientName.setText(prefser.get(Prefs.KEY_CLIENT_NAME, String.class, ""));
+        showPassword.setChecked(!prefser.get(Prefs.KEY_PASSWORD_HIDDEN, Boolean.class, true));
     }
 
     private void executeAll() {
