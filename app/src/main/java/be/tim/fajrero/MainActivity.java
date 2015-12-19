@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     public static final int PUBLISH_INTERVAL = 5000;
+    public static final String MQTT_TOPIC = "setup";
 
     @Bind(R.id.debug) TextView debug;
     @Bind(R.id.ssid) EditText ssid;
@@ -206,21 +207,34 @@ public class MainActivity extends AppCompatActivity {
         progress.setVisibility(View.VISIBLE);
         isRunning = true;
 
-        startAccessPoint();
-        startMqttServer();
-        startMqttClient();
 
-        // Publish message every 5 seconds
-        startPublishing();
-
-        refreshViews();
-        handler.postDelayed(new Runnable() {
+        new Thread(new Runnable() {
             @Override
             public void run() {
-                refreshViews();
-                progress.setVisibility(View.GONE);
+                startAccessPoint();
+                startMqttServer();
+                startMqttClient();
+
+                // Publish message every 5 seconds
+                startPublishing();
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        refreshViews();
+                    }
+                });
+                
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        refreshViews();
+                        progress.setVisibility(View.GONE);
+                    }
+                }, 1500);
             }
-        }, 1500);
+        }).start();
+
     }
 
     private void stopAll() {
@@ -457,7 +471,7 @@ public class MainActivity extends AppCompatActivity {
         message.setQos(2);
         message.setRetained(false);
         try {
-            client.publish("hallo", message);
+            client.publish(MQTT_TOPIC, message);
             publishCount++;
             Log.i(TAG, "Message published");
         } catch (MqttException e) {
