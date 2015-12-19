@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     @Bind(R.id.showPassword) CheckBox showPassword;
     @Bind(R.id.all_in_one) Button allInOne;
     @Bind(R.id.stop_all_in_one) Button stopAllInOne;
+    @Bind(R.id.progress) ProgressBar progress;
 
     private WifiApManager wifiApManager;
     private MqttAndroidClient client;
@@ -138,6 +140,7 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.all_in_one)
     public void allInOneClicked(View view) {
+        allInOne.setVisibility(View.GONE);
         executeAll();
     }
 
@@ -200,6 +203,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void executeAll() {
+        progress.setVisibility(View.VISIBLE);
         isRunning = true;
 
         startAccessPoint();
@@ -209,18 +213,20 @@ public class MainActivity extends AppCompatActivity {
         // Publish message every 5 seconds
         startPublishing();
 
-        refreshDebugInfo();
+        refreshViews();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                refreshDebugInfo();
+                refreshViews();
+                progress.setVisibility(View.GONE);
             }
         }, 1500);
     }
 
     private void stopAll() {
+        progress.setVisibility(View.VISIBLE);
         isRunning = false;
-        
+
         stopPublishing();
         disconnectMqttClient();
 
@@ -231,6 +237,7 @@ public class MainActivity extends AppCompatActivity {
                 stopAccessPoint();
 
                 refreshViews();
+                progress.setVisibility(View.GONE);
             }
         }, 1500);
     }

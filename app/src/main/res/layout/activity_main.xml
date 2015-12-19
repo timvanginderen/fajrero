@@ -105,17 +105,23 @@
                 android:id="@+id/all_in_one"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/all_in_one"
-                android:layout_weight="1"/>
+                android:text="@string/all_in_one"/>
 
             <Button
                 android:id="@+id/stop_all_in_one"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/stop_all_in_one"
-                android:layout_weight="1"/>
+                android:text="@string/stop_all_in_one"/>
 
         </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/progress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:indeterminateOnly="true"
+            android:visibility="gone"/>
 
 
     </LinearLayout>
