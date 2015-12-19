@@ -40,6 +40,8 @@ public class MainActivity extends AppCompatActivity {
     @Bind(R.id.debug) TextView debug;
     private Server server;
     private Handler handler;
+    private int publishCount = 0;
+
 
 
     @Override
@@ -124,12 +126,18 @@ public class MainActivity extends AppCompatActivity {
         startPublishing();
 
         refreshDebugInfo();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                refreshDebugInfo();
+            }
+        }, 1500);
     }
 
     private void stopAll() {
         stopPublishing();
         disconnectMqttClient();
-        stopMqttServer();
+        stopMqttServer(); //TODO fix issue in lib when accessing DB on shutdown
         stopAccessPoint();
 
         refreshDebugInfo();
@@ -152,6 +160,12 @@ public class MainActivity extends AppCompatActivity {
         public void run() {
             Log.d(TAG, "Publishing message, run() called");
             publishMessage();
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    refreshDebugInfo();
+                }
+            });
             handler.postDelayed(publisher, PUBLISH_INTERVAL);
         }
     };
@@ -266,8 +280,10 @@ public class MainActivity extends AppCompatActivity {
                 builder.append(accessPoint);
                 builder.append("\n");
 
-                final String clientsConnected = "Clients connnected: " + clients.size() + "\n";
-                builder.append(clientsConnected);
+                final String clientsConnected = "Clients connnected: " + clients.size();
+                final String messagesPublished = "Messages published: " + publishCount;
+                builder.append(clientsConnected + "  |  " + messagesPublished);
+                builder.append("\n");
 
                 final String serverStatus = "MQTT server status: " + (MainActivity.this.server == null ? "stopped" : "started");
                 builder.append(serverStatus);
@@ -334,6 +350,7 @@ public class MainActivity extends AppCompatActivity {
         message.setRetained(false);
         try {
             client.publish("hallo", message);
+            publishCount++;
             Log.i(TAG, "Message published");
         } catch (MqttException e) {
             Log.e(TAG,  "MqttException Occured", e);
