@@ -26,7 +26,6 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -40,9 +39,7 @@ public class MainActivity extends AppCompatActivity {
     private WifiApManager wifiApManager;
     @Bind(R.id.debug) TextView debug;
     private Server server;
-    private ScheduledThreadPoolExecutor threadPoolExecutor;
     private Handler handler;
-    private boolean isPublishTaskRunning = false;
 
 
     @Override
@@ -55,24 +52,17 @@ public class MainActivity extends AppCompatActivity {
         wifiApManager = new WifiApManager(this);
         handler = new Handler();
 
-        displayAccessPointInfo();
+        refreshDebugInfo();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-//        disconnectMqttClient();
-
-//        stopPublishing();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-        //try to connect mqqt client, execute publisher all the time ATM !
-//        startMqttClient();
-//        startPublishing();
     }
 
     @OnClick(R.id.publish)
@@ -112,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.refresh_debug)
     public void refreshDebugClicked(View view) {
-        displayAccessPointInfo();
+        refreshDebugInfo();
     }
 
     @OnClick(R.id.all_in_one)
@@ -126,16 +116,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void executeAll() {
-        displayAccessPointInfo();
         startAccessPoint();
-        displayAccessPointInfo();
-
         startMqttServer();
         startMqttClient();
 
         // Publish message every 5 seconds
         startPublishing();
 
+        refreshDebugInfo();
     }
 
     private void stopAll() {
@@ -143,6 +131,8 @@ public class MainActivity extends AppCompatActivity {
         disconnectMqttClient();
         stopMqttServer();
         stopAccessPoint();
+
+        refreshDebugInfo();
     }
 
 
@@ -234,7 +224,8 @@ public class MainActivity extends AppCompatActivity {
         try {
             server.startServer();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "MqttException Occured", e);
+            server = null;
         }
     }
 
@@ -243,6 +234,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         server.stopServer();
+        server = null;  //to check status
     }
 
     @NonNull
@@ -250,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
         WifiConfiguration config = new WifiConfiguration();
         config.SSID = "Waldo's mama";
         config.preSharedKey  = "p@ssw0rd";
-//			config.hiddenSSID = true;
+//        config.hiddenSSID = false;
         config.status = WifiConfiguration.Status.ENABLED;
         config.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
         config.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
@@ -261,23 +253,55 @@ public class MainActivity extends AppCompatActivity {
         return config;
     }
 
-    private void displayAccessPointInfo() {
+    private void refreshDebugInfo() {
+
+        final StringBuilder builder = new StringBuilder();
+
         wifiApManager.getClientList(false, new FinishScanListener() {
 
             @Override
             public void onFinishScan(final ArrayList<ClientScanResult> clients) {
 
-                debug.setText("WifiApState: " + wifiApManager.getWifiApState() + "\n\n");
-                debug.append("Clients: \n");
-                for (ClientScanResult clientScanResult : clients) {
-                    debug.append("-------------------\n");
-                    debug.append("IpAddr: " + clientScanResult.getIpAddr() + "\n");
-                    debug.append("Device: " + clientScanResult.getDevice() + "\n");
-                    debug.append("HWAddr: " + clientScanResult.getHWAddr() + "\n");
-                    debug.append("isReachable: " + clientScanResult.isReachable() + "\n");
+                final String accessPoint = "AccessPoint status: " + wifiApManager.getWifiApState();
+                builder.append(accessPoint);
+                builder.append("\n");
+
+                final String clientsConnected = "Clients connnected: " + clients.size() + "\n";
+                builder.append(clientsConnected);
+
+                final String serverStatus = "MQTT server status: " + (MainActivity.this.server == null ? "stopped" : "started");
+                builder.append(serverStatus);
+                builder.append("\n");
+
+                final String clientStatus = "MQTT client status: " + (isClientConnected() ? "connected" : "disconnected");
+                builder.append(clientStatus);
+                builder.append("\n");
+                builder.append("\n");
+                builder.append("\n");
+
+                if (clients.size() > 0) {
+                    builder.append("Connected devices: " + "\n");
+                    for (ClientScanResult clientScanResult : clients) {
+                        builder.append("-------------------\n");
+                        builder.append("IpAddr: " + clientScanResult.getIpAddr() + "\n");
+                        builder.append("Device: " + clientScanResult.getDevice() + "\n");
+                        builder.append("HWAddr: " + clientScanResult.getHWAddr() + "\n");
+                        builder.append("isReachable: " + clientScanResult.isReachable() + "\n");
+                    }
                 }
+
+                debug.setText(builder.toString());
             }
         });
+    }
+
+    private boolean isClientConnected() {
+        try {
+            return (client != null && client.isConnected());
+        } catch (Exception e) {
+            Log.e(TAG, "Exception thrown in isClientConnected", e);
+            return false;
+        }
     }
 
     /**
@@ -297,12 +321,12 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
         } catch (NullPointerException e) {
-            Log.e(TAG, "NullPointerException thrown in client.isConnected()", e);
+            Log.e(TAG, "NullPointerException thrown in publishMessage", e);
             return;
         } catch (IllegalArgumentException e) {
-            Log.e(TAG, "IllegalArgumentException thrown in client.isConnected()", e);
+            Log.e(TAG, "IllegalArgumentException thrown in publishMessage", e);
         } catch (Exception e) {
-            Log.e(TAG, "IllegalArgumentException thrown in client.isConnected()", e);
+            Log.e(TAG, "Exception thrown in publishMessage", e);
         }
 
         MqttMessage message = new MqttMessage("Hello, I am Android Mqtt Client.".getBytes());
@@ -315,6 +339,8 @@ public class MainActivity extends AppCompatActivity {
             Log.e(TAG,  "MqttException Occured", e);
         } catch (NullPointerException e) {
             Log.e(TAG, "NullPointerException Occured", e);
+        } catch (Exception e) {
+            Log.e(TAG, "Exception Occured", e);
         }
     }
 
