@@ -29,10 +29,11 @@ import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -224,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
                         refreshViews();
                     }
                 });
-                
+
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -467,7 +468,9 @@ public class MainActivity extends AppCompatActivity {
             Log.e(TAG, "Exception thrown in publishMessage", e);
         }
 
-        MqttMessage message = new MqttMessage("Hello, I am Android Mqtt Client.".getBytes());
+        JSONObject setupInfo = getJsonSetupInfo();
+
+        MqttMessage message = new MqttMessage(setupInfo.toString().getBytes());
         message.setQos(2);
         message.setRetained(false);
         try {
@@ -481,6 +484,20 @@ public class MainActivity extends AppCompatActivity {
         } catch (Exception e) {
             Log.e(TAG, "Exception Occured", e);
         }
+    }
+
+    @NonNull
+    private JSONObject getJsonSetupInfo() {
+        JSONObject setupInfo = new JSONObject();
+        try {
+            setupInfo.put("SSID", ssid.getText().toString().trim());
+            setupInfo.put("password", password.getText().toString());
+            setupInfo.put("broker ip", broker.getText().toString().trim());
+            setupInfo.put("client name", clientName.getText().toString().trim());
+        } catch (JSONException e) {
+            Log.e(TAG, "JSONException Occured", e);
+        }
+        return setupInfo;
     }
 
     private void displayToast(String message) {
