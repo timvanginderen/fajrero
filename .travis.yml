@@ -8,4 +8,12 @@ android:
   components:
     - build-tools-23.0.2
 
+# Handle git submodules yourself to counter private git repo's
+git:
+    submodules: false
+# Use sed to replace the SSH URL with the public URL, then initialize submodules
+before_install:
+    - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
+    - git submodule update --init --recursive
+
 script: ./gradlew build
