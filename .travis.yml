@@ -2,33 +2,39 @@ language: android
 jdk: oraclejdk7
 env:
   matrix:
-    - ANDROID_TARGET=android-23 ANDROID_ABI=armeabi-v7a
-
+  - ANDROID_TARGET=android-23 ANDROID_ABI=armeabi-v7a
+  global:
+    secure: muKrGGAf5UA4DC/IlcZxdgGCMkhlIf6h85LaKZwc2MkMw++YwohdeLds5/NBnSKDjs9D82uVbRiXoFPAj168DMxZA9x0y78Azx4vpmSbZ/WUasa20O1MZM9hF12Vaq2blxpZdSYKh15XrM5Dl1h91nYoaCvoOZBQHiqK80o1SBGX25FYsWtZTpK7cWySkzbc99gJa/owVsjsZ3OTpHegEQ0UlUtuAoMipk9XTDRaH64HbWcVZgvTpG6Kbigoz+6bk6iPdye4cwf9ch4IZPjb0lWTmcJqXB4u79aPCcuTLx6D0Wt74VUGG/qHDaXFDGyIo+n/P1HpNGQVxqqmxIBoNWx1++Kpmi7h5YMO7nrIAXK4yCqQ1DRjLw5endBsT8Oue6eD8aGD/ESMjhzuVXLHl7LIE5wj7KrrTe7q8jTixJ85eYlFvxFEtHLOmWeRtVnORC2dYg9/aleSRuMO+WJKJmfb+71OzVCQl0YeI4zNnt5ER8lbjs0SqZ4nW5d0shfdvreagw53Sup7+/LhnAAXORXp8gW5CG2c5sVmRKHb4NK70up/NdkY1gjqiHprfkPpQ/uJ9RqdIG5aCJAdlT77rHnZ6RPPEJyr+hDxLWCjqeY9Q0ptAiw2QT7hmSXklPnD372SRv5xmpKmFPlMvfsE059HlnzX1dKhUNLomYtZ0Vs=
 android:
   components:
-    - platform-tools
-    - build-tools-23.0.1
-    - android-23
-    - tools
-    - extra-android-support
-    - extra-google-google_play_services
-    - extra-google-m2repository
-    - extra-android-m2repository
+  - platform-tools
+  - build-tools-23.0.1
+  - android-23
+  - tools
+  - extra-android-support
+  - extra-google-google_play_services
+  - extra-google-m2repository
+  - extra-android-m2repository
   licenses:
-    - 'android-sdk-preview-license-52d11cd2'
-    - 'android-sdk-license-.+'
-    - 'google-gdk-license-.+'
-
-# Handle git submodules yourself to counter private git repo's
+  - android-sdk-preview-license-52d11cd2
+  - android-sdk-license-.+
+  - google-gdk-license-.+
 git:
-    submodules: false
+  submodules: false
 before_install:
-    - export ANDROID_HOME=/usr/local/android-sdk
-    - export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
-    - echo "sdk.dir=$ANDROID_HOME" > local.properties
-    - echo yes | android update sdk --all --filter build-tools-23.0.1 --no-ui --force > /dev/null
-    # Use sed to replace the SSH URL with the public URL, then initialize submodules
-    - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
-    - git submodule update --init --recursive
+- export ANDROID_HOME=/usr/local/android-sdk
+- export PATH=${PATH}:${ANDROID_HOME}/tools:${ANDROID_HOME}/platform-tools
+- echo "sdk.dir=$ANDROID_HOME" > local.properties
+- echo yes | android update sdk --all --filter build-tools-23.0.1 --no-ui --force
+  > /dev/null
+- sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
+- git submodule update --init --recursive
+- sudo apt-get update -qq
+- sudo apt-get install -y python2.7
+- git config --global user.email "tim@travis.com"
+- git config --global user.name "travis"
+- git remote rm origin
+- git remote add origin https://user:${GH_TOKEN}@github.com/timvanginderen/fajrero.git
 
-script: ./gradlew build
+script: "./gradlew build"
+after_success: "./scripts/travis_upload_release_to_github.py"
