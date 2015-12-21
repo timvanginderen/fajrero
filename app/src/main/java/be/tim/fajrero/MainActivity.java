@@ -1,9 +1,13 @@
 package be.tim.fajrero;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.net.wifi.WifiConfiguration;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
@@ -46,7 +50,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
 
     public static final int PUBLISH_INTERVAL = 5000;
-    public static final String MQTT_TOPIC = "setup";
+    public static final String MQTT_TOPIC = "/setup";
+    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
 
     @Bind(R.id.debug) TextView debug;
     @Bind(R.id.ssid) EditText ssid;
@@ -84,6 +89,36 @@ public class MainActivity extends AppCompatActivity {
         restoreSetupInfo();
         refreshViews();
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+                    if (isRunning) {
+                        executeAll();
+                    }
+
+                } else {
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                    finish();
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
+    }
+
 
     private void refreshViews() {
         refreshDebugInfo();
@@ -208,34 +243,34 @@ public class MainActivity extends AppCompatActivity {
         progress.setVisibility(View.VISIBLE);
         isRunning = true;
 
+        if (checkAndRequestPermissions()) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    startAccessPoint();
+                    startMqttServer();
+                    startMqttClient();
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                startAccessPoint();
-                startMqttServer();
-                startMqttClient();
+                    // Publish message every 5 seconds
+                    startPublishing();
 
-                // Publish message every 5 seconds
-                startPublishing();
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            refreshViews();
+                        }
+                    });
 
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        refreshViews();
-                    }
-                });
-
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        refreshViews();
-                        progress.setVisibility(View.GONE);
-                    }
-                }, 1500);
-            }
-        }).start();
-
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            refreshViews();
+                            progress.setVisibility(View.GONE);
+                        }
+                    }, 1500);
+                }
+            }).start();
+        }
     }
 
     private void stopAll() {
@@ -349,14 +384,58 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startMqttServer() {
-        server = new Server();
+        if (checkAndRequestPermissions()) {
+            server = new Server();
 
-        try {
-            server.startServer();
-        } catch (IOException e) {
-            Log.e(TAG, "MqttException Occured", e);
-            server = null;
+            try {
+                server.startServer();
+            } catch (IOException e) {
+                Log.e(TAG, "MqttException Occured", e);
+                server = null;
+            }
         }
+    }
+
+    /**
+     * Check WRITE_EXTERNAL_STORAGE permission
+     * @return wether or not the permission is granted
+     */
+    private boolean checkAndRequestPermissions() {
+        // Check write external storage permission
+        // Here, thisActivity is the current activity
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+                // TODO: 21.12.15 show explanation instead
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+                return false;
+
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+                return false;
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
+        }
+        return true;
     }
 
     private void stopMqttServer() {
@@ -476,7 +555,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             client.publish(MQTT_TOPIC, message);
             publishCount++;
-            Log.i(TAG, "Message published");
+            Log.i(TAG, "Message published: " + setupInfo.toString());
         } catch (MqttException e) {
             Log.e(TAG,  "MqttException Occured", e);
         } catch (NullPointerException e) {
