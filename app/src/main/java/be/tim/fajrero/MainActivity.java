@@ -97,13 +97,15 @@ public class MainActivity extends AppCompatActivity {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        final WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+                        final WifiManager wifiManager =
+                                (WifiManager) getSystemService(Context.WIFI_SERVICE);
                         List<ScanResult> results = wifiManager.getScanResults();
                         Prefs.putSsids(getApplicationContext(), results);
 
                         // TODO: 23.12.15 refactor to use populateSpinner()
                         final List<String> ssids = Prefs.getSsids(getApplicationContext());
-                        final ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, ssids);
+                        final ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(),
+                               R.layout.ssid_spinner_item, ssids);
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
@@ -296,7 +298,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 final List<String> ssids = Prefs.getSsids(getApplicationContext());
-                final ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, ssids);
+                final ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(),
+                        R.layout.ssid_spinner_item, ssids);
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -423,12 +426,14 @@ public class MainActivity extends AppCompatActivity {
             client.connect(conOpt, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
-                    Log.d(TAG, "onSuccess() called with: " + "asyncActionToken = [" + asyncActionToken + "]");
+                    Log.d(TAG, "onSuccess() called with: " + "asyncActionToken = ["
+                            + asyncActionToken + "]");
                 }
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    Log.d(TAG, "onFailure() called with: " + "asyncActionToken = [" + asyncActionToken + "], exception = [" + exception + "]");
+                    Log.d(TAG, "onFailure() called with: " + "asyncActionToken = ["
+                            + asyncActionToken + "], exception = [" + exception + "]");
                 }
             });
         } catch (MqttException e) {
