@@ -1,9 +1,14 @@
 package be.tim.fajrero;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -33,11 +38,13 @@ import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -71,11 +78,28 @@ public class MainActivity extends AppCompatActivity {
     private Prefser prefser;
     private boolean isRunning;
 
+    private BroadcastReceiver scanResultsReceiver;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
+
+        // Initialize wifi scan broadcast receiver
+        scanResultsReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context c, Intent intent) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        final WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+                        List<ScanResult> results = wifiManager.getScanResults();
+                        Prefs.putSsids(getApplicationContext(), results);
+                    }
+                }).start();
+            }
+        };
 
         // Initialize wifi access point mananger
         wifiApManager = new WifiApManager(this);
@@ -89,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
         restoreSetupInfo();
         refreshViews();
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -128,11 +153,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        unregisterReceiver(scanResultsReceiver);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        registerReceiver(scanResultsReceiver,
+                new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
     }
 
     @OnClick(R.id.publish)
