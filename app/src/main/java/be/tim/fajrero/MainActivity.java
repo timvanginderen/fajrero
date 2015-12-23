@@ -24,7 +24,6 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.SimpleAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -41,7 +40,6 @@ import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -74,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
     @Bind(R.id.all_in_one) Button allInOne;
     @Bind(R.id.stop_all_in_one) Button stopAllInOne;
     @Bind(R.id.progress) ProgressBar progress;
+    @Bind(R.id.progressWifiScan) ProgressBar progressWifiScan;
     @Bind(R.id.ssid_spinner) Spinner ssidSpinner;
 
     private WifiApManager wifiApManager;
@@ -104,14 +103,11 @@ public class MainActivity extends AppCompatActivity {
                         List<ScanResult> results = wifiManager.getScanResults();
                         Prefs.putSsids(getApplicationContext(), results);
 
-                        // TODO: 23.12.15 refactor to use populateSpinner()
-                        final List<String> ssids = Prefs.getSsids(getApplicationContext());
-                        final ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(),
-                               R.layout.ssid_spinner_item, ssids);
                         handler.post(new Runnable() {
                             @Override
                             public void run() {
-                                ssidSpinner.setAdapter(adapter);
+                                populateSsidSpinner();
+                                progressWifiScan.setVisibility(View.GONE);
 
                             }
                         });
@@ -129,14 +125,12 @@ public class MainActivity extends AppCompatActivity {
         // Initialize SharedPreferences helper used to store EditText values
         prefser = new Prefser(this);
 
-        // Populate ssid spinner
-        populateSsidSpinner();
-
         restoreSetupInfo();
         refreshViews();
+
+        // Populate ssid spinner
+        populateSsidSpinner();
     }
-
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -185,10 +179,14 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(scanResultsReceiver,
                 new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 
+        startifiSsidScan();
+
+    }
+
+    private void startifiSsidScan() {
+        progressWifiScan.setVisibility(View.VISIBLE);
         final WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         wifiManager.getScanResults();
-
-
     }
 
     @OnClick(R.id.publish)

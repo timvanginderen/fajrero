@@ -34,6 +34,14 @@
 
         </android.support.design.widget.TextInputLayout>
 
+        <ProgressBar
+            android:id="@+id/progressWifiScan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:indeterminateOnly="true"
+            android:visibility="gone"/>
+
         <Spinner
             android:id="@+id/ssid_spinner"
             android:layout_width="match_parent"
