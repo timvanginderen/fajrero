@@ -62,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
     public static final int PUBLISH_INTERVAL = 5000;
     public static final String MQTT_TOPIC = "/setup";
     private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
+    public static final String AP_SSID_NAME = "CSsetupwifi";
+    public static final String AP_PASSWORD = "cheapspark";
 
     @Bind(R.id.debug) TextView debug;
     @Bind(R.id.ssid) EditText ssid;
@@ -524,8 +526,8 @@ public class MainActivity extends AppCompatActivity {
     @NonNull
     private WifiConfiguration getWifiConfiguration() {
         WifiConfiguration config = new WifiConfiguration();
-        config.SSID = "CSsetupwifi";
-        config.preSharedKey  = "cheapspark";
+        config.SSID = AP_SSID_NAME;
+        config.preSharedKey  = AP_PASSWORD;
         config.hiddenSSID = true;
         config.status = WifiConfiguration.Status.ENABLED;
         config.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);

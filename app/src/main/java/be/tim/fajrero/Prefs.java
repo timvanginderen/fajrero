@@ -61,14 +61,16 @@ public class Prefs {
             JSONArray ssidArray = new JSONArray(json);
             final int length = ssidArray.length();
 
-            // Convert to ArrayList
+            // Convert to ArrayList and strip own AP ssid from list
             List<KnownSsid> ssidList = new ArrayList<>(length);
             for (int i = 0; i < length; i++) {
                 JSONObject ssidObject = ssidArray.getJSONObject(i);
                 int level = ssidObject.getInt(JSON_KEY_LEVEL);
                 String ssid = ssidObject.getString(JSON_KEY_SSID);
-                final KnownSsid knownSsid = new KnownSsid(ssid, level);
-                ssidList.add(knownSsid);
+                if (!ssid.equals(MainActivity.AP_SSID_NAME)) {
+                    final KnownSsid knownSsid = new KnownSsid(ssid, level);
+                    ssidList.add(knownSsid);
+                }
             }
 
             // Sort on level
