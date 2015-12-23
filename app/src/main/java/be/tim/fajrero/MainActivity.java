@@ -161,12 +161,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-    private void refreshViews() {
-        refreshDebugInfo();
-        refreshActionButtons();
-    }
-
     @Override
     protected void onPause() {
         super.onPause();
@@ -183,15 +177,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void startifiSsidScan() {
-        progressWifiScan.setVisibility(View.VISIBLE);
-        final WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-        wifiManager.getScanResults();
-    }
-
     @OnClick(R.id.publish)
     public void publishClicked(View view) {
         publishMessage();
+    }
+
+    @OnClick(R.id.ssidScan)
+    public void ssidScanClicked(View view) {
+        startifiSsidScan();
     }
 
     @OnClick(R.id.start_access_point)
@@ -264,6 +257,18 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    private void refreshViews() {
+        refreshDebugInfo();
+        refreshActionButtons();
+    }
+
+    private void startifiSsidScan() {
+        progressWifiScan.setVisibility(View.VISIBLE);
+        final WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        wifiManager.getScanResults();
+    }
+
 
     private void saveBroker() {
         prefser.put(Prefs.KEY_BROKER, broker.getText().toString().trim());

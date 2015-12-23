@@ -14,7 +14,7 @@
 
     <string name="Disconnect">Disconnect</string>
     <string name="subscribe">Subscribe</string>
-    <string name="publish">Publish</string>
+    <string name="publish">Publish message</string>
     <string name="title_activity_subscribe">Subscribe</string>
     <string name="disconnected">Disconnected from</string>
     <string name="topic">Topic</string>
@@ -100,6 +100,7 @@
     <string name="stop_server">Stop Server</string>
     <string name="start_client">Start Client</string>
     <string name="stop_client">Stop Client</string>
-    <string name="all_in_one">ALL IN ONE</string>
-    <string name="stop_all_in_one">STOP</string>
+    <string name="all_in_one">Go</string>
+    <string name="stop_all_in_one">Stop</string>
+    <string name="ssid_scan">Start SSID scan</string>
 </resources>
