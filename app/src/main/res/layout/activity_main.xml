@@ -9,139 +9,154 @@
     sothree:umanoPanelHeight="102dp"
     sothree:umanoShadowHeight="4dp">
 
+    <!--First panel-->
+
     <LinearLayout
         android:id="@+id/main_panel"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin"
-        android:paddingBottom="@dimen/activity_vertical_margin"
         android:orientation="vertical">
 
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/ssidWrapper"
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent">
 
-            <EditText
-                android:id="@+id/ssid"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="text"
-                android:hint="SSID"
-                android:tag="@string/tag_ssid"/>
+                android:layout_height="match_parent"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                android:orientation="vertical">
 
-        </android.support.design.widget.TextInputLayout>
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/ssidWrapper"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-        <Spinner
-            android:id="@+id/ssid_spinner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            />
+                    <EditText
+                        android:id="@+id/ssid"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:hint="SSID"
+                        android:tag="@string/tag_ssid"/>
 
-        <ProgressBar
-            android:id="@+id/progressWifiScan"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:indeterminateOnly="true"
-            android:visibility="gone"/>
+                </android.support.design.widget.TextInputLayout>
 
-
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/passwordWrapper"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <EditText
-                    android:id="@+id/password"
+                <Spinner
+                    android:id="@+id/ssid_spinner"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textPassword"
-                    android:hint="PASSWORD"
-                    android:tag="@string/tag_password"/>
+                    />
 
-            </android.support.design.widget.TextInputLayout>
-
-            <CheckBox
-                android:id="@+id/showPassword"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_centerVertical="true"/>
-
-        </RelativeLayout>
+                <ProgressBar
+                    android:id="@+id/progressWifiScan"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:indeterminateOnly="true"
+                    android:visibility="gone"/>
 
 
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/brokerWrapper"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
 
-            <EditText
-                android:id="@+id/broker"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="phone"
-                android:hint="BROKER IP"
-                android:tag="@string/tag_broker"/>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
 
-        </android.support.design.widget.TextInputLayout>
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/passwordWrapper"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
 
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/clientNameWrapper"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+                        <EditText
+                            android:id="@+id/password"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textPassword"
+                            android:hint="PASSWORD"
+                            android:tag="@string/tag_password"/>
 
-            <EditText
-                android:id="@+id/clientName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textCapWords"
-                android:hint="CLIENT NAME"
-                android:tag="@string/tag_clientName"/>
+                    </android.support.design.widget.TextInputLayout>
 
-        </android.support.design.widget.TextInputLayout>
+                    <CheckBox
+                        android:id="@+id/showPassword"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"/>
 
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/all_in_one"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/all_in_one"/>
-
-            <Button
-                android:id="@+id/stop_all_in_one"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/stop_all_in_one"/>
-
-        </LinearLayout>
-
-        <ProgressBar
-            android:id="@+id/progress"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:indeterminateOnly="true"
-            android:visibility="gone"/>
+                </RelativeLayout>
 
 
-    </LinearLayout>
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/brokerWrapper"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <EditText
+                        android:id="@+id/broker"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="phone"
+                        android:hint="BROKER IP"
+                        android:tag="@string/tag_broker"/>
+
+                </android.support.design.widget.TextInputLayout>
+
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/clientNameWrapper"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <EditText
+                        android:id="@+id/clientName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textCapWords"
+                        android:hint="CLIENT NAME"
+                        android:tag="@string/tag_clientName"/>
+
+                </android.support.design.widget.TextInputLayout>
 
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/all_in_one"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/all_in_one"/>
+
+                    <Button
+                        android:id="@+id/stop_all_in_one"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/stop_all_in_one"/>
+
+                </LinearLayout>
+
+                <ProgressBar
+                    android:id="@+id/progress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:indeterminateOnly="true"
+                    android:visibility="gone"/>
+
+            </LinearLayout>
+        </ScrollView>
+
+
+   </LinearLayout>  <!-- end first panel-->
+
+
+    <!--Second panel-->
     <LinearLayout
         android:id="@+id/debug_panel"
         android:layout_width="match_parent"
@@ -262,12 +277,8 @@
                 </LinearLayout>
 
 
-
             </LinearLayout>
-
         </ScrollView>
-
-
 
 
     </LinearLayout>
