@@ -2,6 +2,7 @@ package be.tim.fajrero;
 
 import android.content.Context;
 import android.net.wifi.ScanResult;
+import android.net.wifi.WifiConfiguration;
 import android.util.Log;
 
 import com.github.pwittchen.prefser.library.Prefser;
@@ -32,12 +33,11 @@ public class Prefs {
     public static final String KEY_PASSWORD_HIDDEN = "be.tim.fajrero.Prefs.KEY.PASSWORD_HIDDEN";
     public static final String KEY_KNOWN_SSIDS= "be.tim.fajrero.Prefs.KEY.KNOWN_SSIDS";
 
-
     private static Prefser getPrefser(Context context) {
         return new Prefser(context);
     }
 
-    public static void putSsids(Context context, List<ScanResult> results) {
+    public static void putSsidsFromScan(Context context, List<ScanResult> results) {
         Prefser prefser = getPrefser(context);
         JSONArray ssidArray = new JSONArray();
         for (ScanResult result : results) {
@@ -47,10 +47,27 @@ public class Prefs {
                 ssidObject.put(JSON_KEY_LEVEL, result.level);
                 ssidArray.put(ssidObject);
             } catch (JSONException e) {
-                Log.e("Fajrero", "JSONException occured in putSsids", e);
+                Log.e("Fajrero", "JSONException occured in putSsidsFromScan", e);
             }
         }
         prefser.put(KEY_KNOWN_SSIDS, ssidArray.toString());
+    }
+
+
+    public static void putSsidsFromConfiguredNetorks(Context context, List<WifiConfiguration> configuredNetworks) {
+        Prefser prefser = getPrefser(context);
+        JSONArray ssidArray = new JSONArray();
+        for (WifiConfiguration configuration : configuredNetworks) {
+            JSONObject ssidObject = new JSONObject();
+            try {
+                ssidObject.put(JSON_KEY_SSID, configuration.SSID);
+                ssidArray.put(ssidObject);
+            } catch (JSONException e) {
+                Log.e("Fajrero", "JSONException occured in putSsidsFromConfiguredNetorks", e);
+            }
+        }
+        prefser.put(KEY_KNOWN_SSIDS, ssidArray.toString());
+
     }
 
     public static List<String> getSsids(Context context) {
@@ -65,7 +82,7 @@ public class Prefs {
             List<KnownSsid> ssidList = new ArrayList<>(length);
             for (int i = 0; i < length; i++) {
                 JSONObject ssidObject = ssidArray.getJSONObject(i);
-                int level = ssidObject.getInt(JSON_KEY_LEVEL);
+                int level = ssidObject.optInt(JSON_KEY_LEVEL);
                 String ssid = ssidObject.getString(JSON_KEY_SSID);
                 if (!ssid.equals(MainActivity.AP_SSID_NAME)) {
                     final KnownSsid knownSsid = new KnownSsid(ssid, level);

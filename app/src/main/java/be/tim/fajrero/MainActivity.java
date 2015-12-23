@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity {
                         final WifiManager wifiManager =
                                 (WifiManager) getSystemService(Context.WIFI_SERVICE);
                         List<ScanResult> results = wifiManager.getScanResults();
-                        Prefs.putSsids(getApplicationContext(), results);
+                        Prefs.putSsidsFromScan(getApplicationContext(), results);
 
                         handler.post(new Runnable() {
                             @Override
@@ -125,6 +125,9 @@ public class MainActivity extends AppCompatActivity {
 
         // Initialize SharedPreferences helper used to store EditText values
         prefser = new Prefser(this);
+
+        // Initialize with show password enabled
+        showPassword.setChecked(true);
 
         restoreSetupInfo();
         refreshViews();
@@ -268,6 +271,12 @@ public class MainActivity extends AppCompatActivity {
         progressWifiScan.setVisibility(View.VISIBLE);
         final WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         wifiManager.getScanResults();
+
+
+        // TODO: 23.12.15 background prefs task
+        final List<WifiConfiguration> configuredNetworks = wifiManager.getConfiguredNetworks();
+        Prefs.putSsidsFromConfiguredNetorks(getApplicationContext(), configuredNetworks);
+        populateSsidSpinner();
     }
 
 
