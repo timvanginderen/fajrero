@@ -34,6 +34,11 @@
 
         </android.support.design.widget.TextInputLayout>
 
+        <Spinner
+            android:id="@+id/ssid_spinner"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+
 
         <RelativeLayout
             android:layout_width="match_parent"

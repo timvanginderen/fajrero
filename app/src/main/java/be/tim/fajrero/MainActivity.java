@@ -18,11 +18,14 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.SimpleAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -69,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
     @Bind(R.id.all_in_one) Button allInOne;
     @Bind(R.id.stop_all_in_one) Button stopAllInOne;
     @Bind(R.id.progress) ProgressBar progress;
+    @Bind(R.id.ssid_spinner) Spinner ssidSpinner;
 
     private WifiApManager wifiApManager;
     private MqttAndroidClient client;
@@ -96,6 +100,17 @@ public class MainActivity extends AppCompatActivity {
                         final WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
                         List<ScanResult> results = wifiManager.getScanResults();
                         Prefs.putSsids(getApplicationContext(), results);
+
+                        // TODO: 23.12.15 refactor to use populateSpinner()
+                        final List<String> ssids = Prefs.getSsids(getApplicationContext());
+                        final ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, ssids);
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                ssidSpinner.setAdapter(adapter);
+
+                            }
+                        });
                     }
                 }).start();
             }
@@ -110,9 +125,13 @@ public class MainActivity extends AppCompatActivity {
         // Initialize SharedPreferences helper used to store EditText values
         prefser = new Prefser(this);
 
+        // Populate ssid spinner
+        populateSsidSpinner();
+
         restoreSetupInfo();
         refreshViews();
     }
+
 
 
     @Override
@@ -161,6 +180,11 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         registerReceiver(scanResultsReceiver,
                 new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+
+        final WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        wifiManager.getScanResults();
+
+
     }
 
     @OnClick(R.id.publish)
@@ -266,6 +290,24 @@ public class MainActivity extends AppCompatActivity {
         clientName.setText(prefser.get(Prefs.KEY_CLIENT_NAME, String.class, ""));
         showPassword.setChecked(!prefser.get(Prefs.KEY_PASSWORD_HIDDEN, Boolean.class, true));
     }
+
+    private void populateSsidSpinner() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                final List<String> ssids = Prefs.getSsids(getApplicationContext());
+                final ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, ssids);
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        ssidSpinner.setAdapter(adapter);
+
+                    }
+                });
+            }
+        }).start();
+    }
+
 
     private void executeAll() {
         progress.setVisibility(View.VISIBLE);

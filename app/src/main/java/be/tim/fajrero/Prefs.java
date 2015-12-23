@@ -12,7 +12,11 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Prefs {
 
@@ -49,14 +53,16 @@ public class Prefs {
         prefser.put(KEY_KNOWN_SSIDS, ssidArray.toString());
     }
 
-    public static List<KnownSsid> getSsids(Context context) {
+    public static List<String> getSsids(Context context) {
         Prefser prefser = getPrefser(context);
         String json = prefser.get(KEY_KNOWN_SSIDS, String.class, "");
         try {
+            // Get json array from prefs
             JSONArray ssidArray = new JSONArray(json);
             final int length = ssidArray.length();
-            List<KnownSsid> ssidList = new ArrayList<KnownSsid>(length);
 
+            // Convert to ArrayList
+            List<KnownSsid> ssidList = new ArrayList<>(length);
             for (int i = 0; i < length; i++) {
                 JSONObject ssidObject = ssidArray.getJSONObject(i);
                 int level = ssidObject.getInt(JSON_KEY_LEVEL);
@@ -65,7 +71,20 @@ public class Prefs {
                 ssidList.add(knownSsid);
             }
 
-            return ssidList;
+            // Sort on level
+            Collections.sort(ssidList, new KnownSsid.SsidComparator());
+
+            // Remove duplicates, but keep the order
+            LinkedHashSet<KnownSsid> ssidSet = new LinkedHashSet<>();
+            ssidSet.addAll(ssidList);
+
+            // Convert to List of strings for adapter
+            List<String> stringList = new ArrayList<>(ssidSet.size());
+            for (KnownSsid ssid : ssidSet) {
+                stringList.add(ssid.getName());
+            }
+
+            return stringList;
         } catch (JSONException e) {
             Log.e("Fajrero", "JSONException occured in getSsids", e);
         } catch (Exception e) {
