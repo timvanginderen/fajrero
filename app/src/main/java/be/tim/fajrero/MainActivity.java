@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
                 new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 
         if (!Prefs.hasScannedSsids(getApplicationContext())) {
-            startifiSsidScan();
+            startWifiSsidScan();
         }
 
     }
@@ -210,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
 
     @OnClick(R.id.ssidScan)
     public void ssidScanClicked(View view) {
-        startifiSsidScan();
+        startWifiSsidScan();
     }
 
     @OnClick(R.id.start_access_point)
@@ -291,6 +291,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         ssid.setText(((TextView) selectedItemView).getText().toString());
+
     }
 
     private void refreshViews() {
@@ -298,7 +299,7 @@ public class MainActivity extends AppCompatActivity {
         refreshActionButtons();
     }
 
-    private void startifiSsidScan() {
+    private void startWifiSsidScan() {
         progressWifiScan.setVisibility(View.VISIBLE);
         final WifiManager wifiManager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         wifiManager.getScanResults();
@@ -340,6 +341,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void populateSsidSpinner() {
+        isOnSpinnerItemSelectedAutoCalled = false;
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -350,7 +352,8 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         ssidSpinner.setAdapter(adapter);
-                        if (TextUtils.isEmpty(ssid.getText().toString()) && ssids.size() > 0) {
+                        if (TextUtils.isEmpty(Prefs.getSsid(getApplicationContext()))
+                                && ssids.size() > 0) {
                             ssid.setText(ssids.get(0));
                             saveSsid();
                         }

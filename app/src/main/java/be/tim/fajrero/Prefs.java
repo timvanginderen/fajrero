@@ -43,6 +43,11 @@ public class Prefs {
         return !TextUtils.isEmpty(prefser.get(KEY_SCANNED_SSIDS, String.class, ""));
     }
 
+    public static String getSsid(Context context) {
+        Prefser prefser = getPrefser(context);
+        return prefser.get(KEY_SSID, String.class, "");
+    }
+
     public static void putSsidsFromScan(Context context, List<ScanResult> results) {
         Prefser prefser = getPrefser(context);
         JSONArray ssidArray = new JSONArray();
