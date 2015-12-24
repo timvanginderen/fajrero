@@ -49,6 +49,10 @@ public class Prefs {
     }
 
     public static void putSsidsFromScan(Context context, List<ScanResult> results) {
+        if (results == null || results.isEmpty()) {
+            return;
+        }
+
         Prefser prefser = getPrefser(context);
         JSONArray ssidArray = new JSONArray();
         for (ScanResult result : results) {
@@ -65,6 +69,10 @@ public class Prefs {
     }
 
     public static void putSsidsFromConfiguredNetorks(Context context, List<WifiConfiguration> configuredNetworks) {
+        if (configuredNetworks == null || configuredNetworks.isEmpty()) {
+            return;
+        }
+
         Prefser prefser = getPrefser(context);
         JSONArray ssidArray = new JSONArray();
         for (WifiConfiguration configuration : configuredNetworks) {
@@ -78,7 +86,6 @@ public class Prefs {
             }
         }
         prefser.put(KEY_KNOWN_SSIDS, ssidArray.toString());
-
     }
 
     public static List<String> getSsids(Context context) {

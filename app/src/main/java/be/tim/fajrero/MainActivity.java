@@ -624,7 +624,6 @@ public class MainActivity extends AppCompatActivity {
 
                 final WIFI_AP_STATE wifiApState = wifiApManager.getWifiApState();
 
-
                 final boolean apConnected = wifiApState == WIFI_AP_STATE.WIFI_AP_STATE_ENABLED
                         || wifiApState == WIFI_AP_STATE.WIFI_AP_STATE_ENABLING;
 
@@ -643,7 +642,9 @@ public class MainActivity extends AppCompatActivity {
                 final String clientStatus = "MQTT client status:  " + (isClientConnected() ?
                         colorizeString("STARTED", "green") : colorizeString("STOPPED", "red"));
                 builder.append(clientStatus);
-                builder.append("</div>");
+
+                builder.append("</div>"); // end status-div
+
                 builder.append("<br>");
 
                 final String clientsConnected = "Clients connnected: " + clients.size();
