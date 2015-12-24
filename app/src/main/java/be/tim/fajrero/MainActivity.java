@@ -19,6 +19,7 @@ import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -56,6 +57,7 @@ import butterknife.ButterKnife;
 import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 import butterknife.OnFocusChange;
+import butterknife.OnItemSelected;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -86,8 +88,9 @@ public class MainActivity extends AppCompatActivity {
     private int publishCount = 0;
     private Prefser prefser;
     private boolean isRunning;
-
     private BroadcastReceiver scanResultsReceiver;
+    private boolean isOnSpinnerItemSelectedAutoCalled = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -279,6 +282,15 @@ public class MainActivity extends AppCompatActivity {
                 saveClientName();
             }
         }
+    }
+
+    @OnItemSelected(R.id.ssid_spinner)
+    public void onSpinnerItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+        if (!isOnSpinnerItemSelectedAutoCalled) {
+            isOnSpinnerItemSelectedAutoCalled = true;
+            return;
+        }
+        ssid.setText(((TextView) selectedItemView).getText().toString());
     }
 
     private void refreshViews() {
