@@ -34,6 +34,9 @@ import com.whitebyte.wifihotspotutils.ClientScanResult;
 import com.whitebyte.wifihotspotutils.FinishScanListener;
 import com.whitebyte.wifihotspotutils.WifiApManager;
 
+import net.hockeyapp.android.CrashManager;
+import net.hockeyapp.android.UpdateManager;
+
 import org.eclipse.moquette.server.Server;
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -174,11 +177,25 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+
+        // HockeyApp
+        checkForCrashes();
+        checkForUpdates();
+
         registerReceiver(scanResultsReceiver,
                 new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 
         startifiSsidScan();
 
+    }
+
+    private void checkForCrashes() {
+        CrashManager.register(this, "23a9fadade634b91acfa597e07cadd44");
+    }
+
+    private void checkForUpdates() {
+        // Remove this for store builds!
+        UpdateManager.register(this, "23a9fadade634b91acfa597e07cadd44");
     }
 
     @OnClick(R.id.publish)

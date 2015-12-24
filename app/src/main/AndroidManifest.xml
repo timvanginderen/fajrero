@@ -23,6 +23,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme" >
 
+        <!--Hockey App-->
+        <activity android:name="net.hockeyapp.android.UpdateActivity" />
+
         <!-- Mqtt client Service -->
         <service android:name="org.eclipse.paho.android.service.MqttService" >
         </service>
