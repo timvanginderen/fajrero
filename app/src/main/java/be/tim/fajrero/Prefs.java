@@ -80,6 +80,7 @@ public class Prefs {
             try {
                 final String ssid = configuration.SSID.replace("\"", "");
                 ssidObject.put(JSON_KEY_SSID, ssid);
+                ssidObject.put(JSON_KEY_LEVEL, Integer.MIN_VALUE);
                 ssidArray.put(ssidObject);
             } catch (JSONException e) {
                 Log.e("Fajrero", "JSONException occured in putSsidsFromConfiguredNetorks", e);
@@ -128,8 +129,10 @@ public class Prefs {
             for (int i = 0; i < length; i++) {
                 JSONObject ssidObject = ssidArray.getJSONObject(i);
                 String ssid = ssidObject.getString(JSON_KEY_SSID);
+                int level = ssidObject.optInt(JSON_KEY_LEVEL);
+                level = level == 0 ? Integer.MIN_VALUE : level;
                 if (!ssid.equals(MainActivity.AP_SSID_NAME)) {
-                    final KnownSsid knownSsid = new KnownSsid(ssid, 0);
+                    final KnownSsid knownSsid = new KnownSsid(ssid, level);
                     ssidListKnown.add(knownSsid);
                 }
             }
