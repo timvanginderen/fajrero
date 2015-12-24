@@ -29,6 +29,9 @@ import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.util.Log;
 
+import net.hockeyapp.android.CrashManager;
+import net.hockeyapp.android.ExceptionHandler;
+
 public class WifiApManager {
 	private final WifiManager mWifiManager;
 	private Context context;
@@ -57,6 +60,7 @@ public class WifiApManager {
 			return (Boolean) method.invoke(mWifiManager, wifiConfig, enabled);
 		} catch (Exception e) {
 			Log.e(this.getClass().toString(), "", e);
+			ExceptionHandler.saveException(e, null, null);
 			return false;
 		}
 	}
