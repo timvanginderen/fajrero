@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.github.pwittchen.prefser.library.Prefser;
@@ -11,6 +12,7 @@ import com.github.pwittchen.prefser.library.Prefser;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,6 +36,11 @@ public class Prefs {
 
     private static Prefser getPrefser(Context context) {
         return new Prefser(context);
+    }
+
+    public static boolean hasScannedSsids(Context context) {
+        Prefser prefser = getPrefser(context);
+        return !TextUtils.isEmpty(prefser.get(KEY_SCANNED_SSIDS, String.class, ""));
     }
 
     public static void putSsidsFromScan(Context context, List<ScanResult> results) {

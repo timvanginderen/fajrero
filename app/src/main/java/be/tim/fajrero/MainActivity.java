@@ -185,7 +185,9 @@ public class MainActivity extends AppCompatActivity {
         registerReceiver(scanResultsReceiver,
                 new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 
-        startifiSsidScan();
+        if (!Prefs.hasScannedSsids(getApplicationContext())) {
+            startifiSsidScan();
+        }
 
     }
 
