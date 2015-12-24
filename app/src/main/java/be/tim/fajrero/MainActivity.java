@@ -416,6 +416,12 @@ public class MainActivity extends AppCompatActivity {
 
                 refreshViews();
                 progress.setVisibility(View.GONE);
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        refreshViews();
+                    }
+                }, 3000);
             }
         }, 1500);
     }
@@ -607,26 +613,37 @@ public class MainActivity extends AppCompatActivity {
             public void onFinishScan(final ArrayList<ClientScanResult> clients) {
 
 
-                builder.append("<html><body>");
+                builder.append("<html>");
+                builder.append("<head><style>\n" +
+                        "body { background-color: linen;}\n" +
+                        "span { padding: 0.1em 0.3em 0.1em 0.3em; line-height:1.5em;}" +
+                        ".status { width: 100%; text-align: center;}" +
+                        "</style></head>");
 
-                boolean apConnected = wifiApManager.getWifiApState() == WIFI_AP_STATE.WIFI_AP_STATE_ENABLED
-                        ||  wifiApManager.getWifiApState() == WIFI_AP_STATE.WIFI_AP_STATE_ENABLING;
+                builder.append("<body><div class='status'>");
 
-                final String accessPoint = "AccessPoint status: " + "<font color='#145A14'>"
-                        + wifiApManager.getWifiApState() + "</font>";
+                final WIFI_AP_STATE wifiApState = wifiApManager.getWifiApState();
+
+
+                final boolean apConnected = wifiApState == WIFI_AP_STATE.WIFI_AP_STATE_ENABLED
+                        || wifiApState == WIFI_AP_STATE.WIFI_AP_STATE_ENABLING;
+
+                final String apAction = wifiApState.toString().split("_")[3];
+                String color = apConnected ? "green" : "red";
+                final String accessPoint = "AccessPoint status: "  + colorizeString(apAction, color);
                 builder.append(accessPoint);
                 builder.append("<br>");
 
-                final String serverStatus = "MQTT server status: "
-                        + (MainActivity.this.server == null ? "stopped" : "started");
+                final boolean serverConnected = MainActivity.this.server == null;
+                final String serverStatus = "MQTT server status: "   + (serverConnected ?
+                        colorizeString("STOPPED", "red") : colorizeString("STARTED", "green"));
                 builder.append(serverStatus);
                 builder.append("<br>");
 
-                final String clientStatus = "MQTT client status: "
-                        + (isClientConnected() ? "connected" : "disconnected");
+                final String clientStatus = "MQTT client status:  " + (isClientConnected() ?
+                        colorizeString("STARTED", "green") : colorizeString("STOPPED", "red"));
                 builder.append(clientStatus);
-                builder.append("<br>");
-                builder.append("<br>");
+                builder.append("</div>");
                 builder.append("<br>");
 
                 final String clientsConnected = "Clients connnected: " + clients.size();
@@ -651,6 +668,10 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private String colorizeString(String input, String color) {
+        return "<span style='background: " + color + "; color: white;'>" + input + "</span>";
     }
 
     private boolean isClientConnected() {
