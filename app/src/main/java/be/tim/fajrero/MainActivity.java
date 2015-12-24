@@ -15,10 +15,12 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Html;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -33,6 +35,7 @@ import android.widget.Toast;
 import com.github.pwittchen.prefser.library.Prefser;
 import com.whitebyte.wifihotspotutils.ClientScanResult;
 import com.whitebyte.wifihotspotutils.FinishScanListener;
+import com.whitebyte.wifihotspotutils.WIFI_AP_STATE;
 import com.whitebyte.wifihotspotutils.WifiApManager;
 
 import net.hockeyapp.android.CrashManager;
@@ -69,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String AP_SSID_NAME = "CSsetupwifi";
     public static final String AP_PASSWORD = "cheapspark";
 
-    @Bind(R.id.debug) TextView debug;
+    @Bind(R.id.debug) WebView debug;
     @Bind(R.id.ssid) EditText ssid;
     @Bind(R.id.password) EditText password;
     @Bind(R.id.broker) EditText broker;
@@ -603,39 +606,49 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFinishScan(final ArrayList<ClientScanResult> clients) {
 
-                final String accessPoint = "AccessPoint status: " + wifiApManager.getWifiApState();
-                builder.append(accessPoint);
-                builder.append("\n");
 
-                final String clientsConnected = "Clients connnected: " + clients.size();
-                final String messagesPublished = "Messages published: " + publishCount;
-                builder.append(clientsConnected + "  |  " + messagesPublished);
-                builder.append("\n");
+                builder.append("<html><body>");
+
+                boolean apConnected = wifiApManager.getWifiApState() == WIFI_AP_STATE.WIFI_AP_STATE_ENABLED
+                        ||  wifiApManager.getWifiApState() == WIFI_AP_STATE.WIFI_AP_STATE_ENABLING;
+
+                final String accessPoint = "AccessPoint status: " + "<font color='#145A14'>"
+                        + wifiApManager.getWifiApState() + "</font>";
+                builder.append(accessPoint);
+                builder.append("<br>");
 
                 final String serverStatus = "MQTT server status: "
                         + (MainActivity.this.server == null ? "stopped" : "started");
                 builder.append(serverStatus);
-                builder.append("\n");
+                builder.append("<br>");
 
                 final String clientStatus = "MQTT client status: "
                         + (isClientConnected() ? "connected" : "disconnected");
                 builder.append(clientStatus);
-                builder.append("\n");
-                builder.append("\n");
-                builder.append("\n");
+                builder.append("<br>");
+                builder.append("<br>");
+                builder.append("<br>");
+
+                final String clientsConnected = "Clients connnected: " + clients.size();
+                final String messagesPublished = "Messages published: " + publishCount;
+                builder.append(clientsConnected + "  |  " + messagesPublished);
+                builder.append("<br>");
 
                 if (clients.size() > 0) {
-                    builder.append("Connected devices: " + "\n");
+                    builder.append("Connected devices: " + "<br>");
                     for (ClientScanResult clientScanResult : clients) {
-                        builder.append("-------------------\n");
-                        builder.append("IpAddr: " + clientScanResult.getIpAddr() + "\n");
-                        builder.append("Device: " + clientScanResult.getDevice() + "\n");
-                        builder.append("HWAddr: " + clientScanResult.getHWAddr() + "\n");
-                        builder.append("isReachable: " + clientScanResult.isReachable() + "\n");
+                        builder.append("-------------------<br>");
+                        builder.append("IpAddr: " + clientScanResult.getIpAddr() + "<br>");
+                        builder.append("Device: " + clientScanResult.getDevice() + "<br>");
+                        builder.append("HWAddr: " + clientScanResult.getHWAddr() + "<br>");
+                        builder.append("isReachable: " + clientScanResult.isReachable() + "<br>");
                     }
                 }
 
-                debug.setText(builder.toString());
+                builder.append("</body></html>");
+
+                debug.loadData(builder.toString(), "text/html", "utf-8");
+
             }
         });
     }
